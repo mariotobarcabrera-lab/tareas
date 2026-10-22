@@ -5,15 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tareas</title>
 <meta name="description" content="Administra tus tareas con recordatorios.">
-<meta name="theme-color" content="#1d4ed8">
+<meta name="theme-color" content="#151515">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-:root{--bg:#f3f4f6;--card:#fff;--text:#111827;--muted:#4b5563;--line:#9ca3af;--primary:#1d4ed8;--onp:#fff;
-  --ok:#166534;--okbg:#dcfce7;--warn:#92400e;--warnbg:#fef3c7;--bad:#991b1b;--badbg:#fee2e2;--soon:#1e40af;--soonbg:#dbeafe}
-@media(prefers-color-scheme:dark){:root{--bg:#0b1220;--card:#162033;--text:#f3f4f6;--muted:#cbd5e1;--line:#64748b;--primary:#60a5fa;--onp:#0b1220;
-  --ok:#86efac;--okbg:#14532d;--warn:#fcd34d;--warnbg:#78350f;--bad:#fca5a5;--badbg:#7f1d1d;--soon:#93c5fd;--soonbg:#1e3a8a}}
+:root{color-scheme:dark;--bg:#151515;--card:#0b2748;--text:#eaf2fb;--muted:#a9c1dc;--line:#4a82bd;--borde:#0d366b;--primary:#5da3ec;--onp:#04132b;
+  --ok:#86efac;--okbg:#14532d;--warn:#fcd34d;--warnbg:#78350f;--bad:#fca5a5;--badbg:#7f1d1d;--soon:#9cc9f7;--soonbg:#0d366b}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,"Segoe UI",Arial,sans-serif;font-size:17px;line-height:1.5;background:var(--bg);color:var(--text);padding-bottom:110px}
 .wrap{max-width:860px;margin:0 auto;padding:14px}
@@ -21,20 +19,19 @@ h1{font-size:1.5rem}h2{font-size:1.25rem;margin-bottom:12px}h3{font-size:1.1rem}
 button,input,select,textarea{font:inherit;color:inherit}
 button{min-height:44px;padding:8px 16px;border-radius:10px;border:2px solid var(--primary);background:var(--primary);color:var(--onp);font-weight:600;cursor:pointer}
 button.sec{background:transparent;color:var(--primary)}
-button.peligro{background:var(--bad);border-color:var(--bad);color:#fff}
-@media(prefers-color-scheme:dark){button.peligro{background:#b91c1c;border-color:#b91c1c}}
+button.peligro{background:#b91c1c;border-color:#b91c1c;color:#fff}
 button[disabled]{opacity:.6;cursor:not-allowed}
 :focus-visible{outline:3px solid var(--primary);outline-offset:2px}
 .hidden{display:none!important}
 header.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
 .bar .acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .bar .mail{color:var(--muted);font-size:.9rem;word-break:break-all}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:16px;margin-bottom:14px}
 .nota{background:var(--soonbg);color:var(--soon);border-radius:10px;padding:12px;margin-bottom:12px;font-size:.95rem}
 .nota.warn{background:var(--warnbg);color:var(--warn)}
 .nota .acc{margin-top:8px}
 label{display:block;font-weight:600;margin:12px 0 4px}
-input,select,textarea{width:100%;min-height:44px;padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:var(--card)}
+input,select,textarea{width:100%;min-height:44px;padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:#032042}
 textarea{min-height:90px;resize:vertical}
 .err{color:var(--bad);font-size:.9rem;margin-top:4px;min-height:1.2em}
 @media(prefers-color-scheme:dark){.err{color:#fca5a5}}
@@ -46,7 +43,7 @@ input[aria-invalid="true"]{border-color:var(--bad)}
 .filtros button[aria-pressed="true"]{background:var(--primary);color:var(--onp)}
 .filtros button[aria-pressed="false"]{background:transparent;color:var(--primary)}
 ul{list-style:none}
-.tarea{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.tarea{background:var(--card);border:1px solid var(--borde);border-left:8px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
 .tarea.e-vencida{border-left-color:var(--bad)}.tarea.e-proxima{border-left-color:var(--warn)}
 .tarea.e-pendiente{border-left-color:var(--soon)}.tarea.e-realizada{border-left-color:var(--ok)}
 .tarea.e-realizada h3{text-decoration:line-through;color:var(--muted)}
@@ -68,7 +65,7 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
 .alerta{width:min(520px,100%);background:var(--card);border:4px solid var(--warn);border-radius:16px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:pulso 1s ease-in-out infinite}
 .alerta strong{display:block;font-size:1.35rem}
 .alerta .mut{color:var(--muted)}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#111827;color:#fff;border-radius:10px;padding:10px 18px;z-index:60;max-width:92vw;text-align:center}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#032042;border:1px solid var(--primary);color:#fff;border-radius:10px;padding:10px 18px;z-index:60;max-width:92vw;text-align:center}
 details{margin-top:8px}summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--primary);font-weight:600}
 details p{margin-top:6px;color:var(--muted)}
 .opciones{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
@@ -497,7 +494,7 @@ async function notificarSistema(t){
             body: fmtFecha(t) + (t.comentarios ? " · " + t.comentarios.slice(0, 80) : ""),
             tag: "tarea-" + t.id, renotify: true, requireInteraction: true, vibrate: [200, 100, 200, 100, 400], silent: false,
             icon: "icon-192.png", badge: "icon-192.png", data: {id: t.id},
-            actions: [{action: "posponer", title: "Posponer"}, {action: "hecha", title: "Marcar como realizada"}, {action: "abrir", title: "Abrir tarea"}]
+            actions: [{action: "posponer", title: "Posponer"}, {action: "hecha", title: "Marcar como realizada"}, {action: "abrir", title: "Abrir app"}]
         });
     }catch(e){ console.warn("No se pudo mostrar la notificación", e); }
 }

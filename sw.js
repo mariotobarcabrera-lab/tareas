@@ -1,4 +1,4 @@
-const CACHE = "tareas-v3"; // cambia el número al publicar una versión nueva
+const CACHE = "tareas-v4"; // cambia el número al publicar una versión nueva
 const BASE = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -20,7 +20,7 @@ self.addEventListener("fetch", e => {
     }));
 });
 
-/* Clic en la notificación: cuerpo o "Abrir tarea" = abrir; "Posponer" y "Marcar como realizada" = acciones */
+/* Clic en la notificación (o "Abrir app") = abrir la app. "Posponer" y "Marcar como realizada" = acciones sobre la tarea */
 self.addEventListener("notificationclick", e => {
     const d = e.notification.data || {};
     const accion = e.action || "abrir";
@@ -30,10 +30,12 @@ self.addEventListener("notificationclick", e => {
         for (const c of wins) {
             if (c.url.startsWith(self.registration.scope)) {
                 await c.focus();
-                c.postMessage({tipo: "accion", accion, id: d.id});
+                if (accion !== "abrir") c.postMessage({tipo: "accion", accion, id: d.id});
                 return;
             }
         }
-        await clients.openWindow(new URL("./?accion=" + accion + "&tarea=" + encodeURIComponent(d.id), self.registration.scope).href);
+        const url = accion === "abrir" ? self.registration.scope
+            : new URL("./?accion=" + accion + "&tarea=" + encodeURIComponent(d.id), self.registration.scope).href;
+        await clients.openWindow(url);
     })());
 });
