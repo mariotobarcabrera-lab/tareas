@@ -1,5 +1,5 @@
-const CACHE = "tareas-v1"; // cambia el número al publicar una versión nueva
-const BASE = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
+const CACHE = "tareas-v3"; // cambia el número al publicar una versión nueva
+const BASE = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
     e.waitUntil(caches.open(CACHE).then(c => c.addAll(BASE)).then(() => self.skipWaiting()));

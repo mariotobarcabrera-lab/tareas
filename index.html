@@ -7,8 +7,8 @@
 <meta name="description" content="Administra tus tareas con recordatorios.">
 <meta name="theme-color" content="#1d4ed8">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{--bg:#f3f4f6;--card:#fff;--text:#111827;--muted:#4b5563;--line:#9ca3af;--primary:#1d4ed8;--onp:#fff;
   --ok:#166534;--okbg:#dcfce7;--warn:#92400e;--warnbg:#fef3c7;--bad:#991b1b;--badbg:#fee2e2;--soon:#1e40af;--soonbg:#dbeafe}
@@ -62,9 +62,11 @@ ul{list-style:none}
 dialog{border:none;border-radius:16px;padding:20px;width:min(560px,94vw);max-height:92vh;overflow:auto;background:var(--card);color:var(--text)}
 dialog::backdrop{background:rgba(0,0,0,.6)}
 .pie{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:18px}
-#alertas{position:fixed;left:0;right:0;top:0;z-index:50;display:grid;gap:8px;padding:10px;max-width:640px;margin:0 auto}
-.alerta{background:var(--card);border:3px solid var(--warn);border-radius:14px;padding:14px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
-.alerta strong{display:block;font-size:1.1rem}
+#alertas{position:fixed;inset:0;z-index:50;display:grid;gap:10px;padding:14px;align-content:center;justify-items:center;overflow:auto;pointer-events:none}
+#alertas:not(:empty){background:rgba(0,0,0,.65);pointer-events:auto}
+@keyframes pulso{50%{box-shadow:0 0 0 12px rgba(245,158,11,.55)}}
+.alerta{width:min(520px,100%);background:var(--card);border:4px solid var(--warn);border-radius:16px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:pulso 1s ease-in-out infinite}
+.alerta strong{display:block;font-size:1.35rem}
 .alerta .mut{color:var(--muted)}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#111827;color:#fff;border-radius:10px;padding:10px 18px;z-index:60;max-width:92vw;text-align:center}
 details{margin-top:8px}summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--primary);font-weight:600}
@@ -124,6 +126,7 @@ details p{margin-top:6px;color:var(--muted)}
     <details class="card">
         <summary>¿Cómo funcionan los avisos?</summary>
         <p>La app te avisa a la hora del recordatorio mientras está abierta (en una pestaña, en segundo plano o instalada). Si hay permiso, el aviso sale como notificación del sistema con las opciones Posponer, Marcar como realizada y Abrir tarea; si no, aparece dentro de la app.</p>
+        <p><button type="button" id="btnProbar" class="sec">🔔 Probar aviso</button></p>
         <p><strong>Limitación importante:</strong> una app web no puede despertarse sola cuando está completamente cerrada, salvo que use un servidor de notificaciones push, que esta versión no incluye. Si cerraste la app, los recordatorios que vencieron te aparecerán en cuanto la abras. En celulares, el navegador puede pausar las pestañas en segundo plano, y las opciones de la notificación (botones) no existen en todos los navegadores: tocar la notificación siempre abre la tarea.</p>
     </details>
 </main>
@@ -182,6 +185,16 @@ details p{margin-top:6px;color:var(--muted)}
             <button type="submit" value="si" class="peligro">Sí, eliminar</button>
         </div>
     </form>
+</dialog>
+
+<!-- Ayuda para instalar -->
+<dialog id="dlgInstalar" aria-labelledby="tInst">
+    <h2 id="tInst">Instalar app</h2>
+    <p id="instPasos"></p>
+    <h3 style="margin-top:14px">Revisión del navegador</h3>
+    <ul id="instDiag"></ul>
+    <p style="color:var(--muted);margin-top:8px;font-size:.9rem">Si ya la instalaste o cerraste la oferta antes, el navegador puede tardar en volver a mostrarla. Usa los pasos de arriba.</p>
+    <div class="pie"><button type="button" id="btnCerrarInst">Cerrar</button></div>
 </dialog>
 
 <!-- Posponer -->
@@ -436,6 +449,29 @@ function avisoNotif(){
     const b = $("btnPermiso"); if(b) b.onclick = pedirPermiso;
 }
 
+let audioCtx = null, tituloT = null;
+const tituloBase = document.title;
+function sonido(){
+    try{
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const c = audioCtx; if(c.state === "suspended") c.resume();
+        [0, 0.35, 0.7].forEach(d => {
+            const o = c.createOscillator(), g = c.createGain(), t0 = c.currentTime + d;
+            o.type = "sine"; o.frequency.value = 880; o.connect(g); g.connect(c.destination);
+            g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.4, t0 + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.25);
+            o.start(t0); o.stop(t0 + 0.3);
+        });
+    }catch(e){}
+}
+function parpadeo(){
+    clearInterval(tituloT);
+    if(!alertasActivas.size){ document.title = tituloBase; return; }
+    let on = false;
+    tituloT = setInterval(() => {
+        if(!alertasActivas.size){ clearInterval(tituloT); document.title = tituloBase; return; }
+        on = !on; document.title = on ? "🔔 ¡Recordatorio!" : tituloBase;
+    }, 1000);
+}
 function mostrarAlerta(t){
     if(alertasActivas.has(t.id)) return;
     alertasActivas.add(t.id);
@@ -448,8 +484,10 @@ function mostrarAlerta(t){
         <button type="button" data-a="cerrar" class="sec" aria-label="Cerrar aviso">✕</button></div>`;
     d.addEventListener("click", e => { const b = e.target.closest("button"); if(b) accion(b.dataset.a, t.id); });
     $("alertas").appendChild(d);
+    sonido(); parpadeo();
+    try{ if(navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]); }catch(e){}
 }
-function quitarAlerta(id){ alertasActivas.delete(id); const el = $("al-" + id); if(el) el.remove(); }
+function quitarAlerta(id){ alertasActivas.delete(id); const el = $("al-" + id); if(el) el.remove(); parpadeo(); }
 
 async function notificarSistema(t){
     if(!soporta || Notification.permission !== "granted") return;
@@ -457,8 +495,8 @@ async function notificarSistema(t){
         const reg = await navigator.serviceWorker.ready;
         await reg.showNotification(t.titulo, {
             body: fmtFecha(t) + (t.comentarios ? " · " + t.comentarios.slice(0, 80) : ""),
-            tag: "tarea-" + t.id, renotify: true, requireInteraction: true,
-            icon: "icons/icon-192.png", badge: "icons/icon-192.png", data: {id: t.id},
+            tag: "tarea-" + t.id, renotify: true, requireInteraction: true, vibrate: [200, 100, 200, 100, 400], silent: false,
+            icon: "icon-192.png", badge: "icon-192.png", data: {id: t.id},
             actions: [{action: "posponer", title: "Posponer"}, {action: "hecha", title: "Marcar como realizada"}, {action: "abrir", title: "Abrir tarea"}]
         });
     }catch(e){ console.warn("No se pudo mostrar la notificación", e); }
@@ -473,13 +511,14 @@ function revisar(){
         t.notificadoPara = e;                       // evita repetir mientras se guarda
         guardado(updateDoc(refTarea(t.id), {notificadoPara: e}));
         mostrarAlerta(t);
-        if(document.visibilityState !== "visible" || !document.hasFocus()) notificarSistema(t);
+        notificarSistema(t);
     }
 }
 
 /* Acciones de alertas y notificaciones */
 function accion(a, id){
     if(a === "cerrar"){ quitarAlerta(id); return; }
+    if(id === "prueba"){ quitarAlerta(id); toast("Así funcionan las opciones del aviso."); return; }
     const t = tareas.find(x => x.id === id);
     if(!t){ toast("Esa tarea ya no existe."); quitarAlerta(id); return; }
     if(a === "hecha"){ marcar(t, "realizada"); }
@@ -517,6 +556,11 @@ $("formPosCustom").addEventListener("submit", e => {
 });
 $("btnCancelarPos").addEventListener("click", () => $("dlgPosponer").close());
 
+$("btnProbar").addEventListener("click", async () => {
+    await pedirPermiso();
+    const t = {id: "prueba", titulo: "Aviso de prueba", ts: Date.now(), comentarios: "Así se verá un recordatorio."};
+    mostrarAlerta(t); notificarSistema(t);
+});
 setInterval(revisar, 15000);
 setInterval(() => { if(uid) render(); }, 60000);
 document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible"){ revisar(); render(); } });
@@ -566,13 +610,44 @@ onAuthStateChanged(auth, user => {
 /* ---------- PWA ---------- */
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 let instalador = null;
-addEventListener("beforeinstallprompt", e => { e.preventDefault(); instalador = e; show("btnInstall", true); });
-addEventListener("appinstalled", () => show("btnInstall", false));
+const instalada = () => (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+if(!instalada()) show("btnInstall", true);          // siempre visible mientras no esté instalada
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); instalador = e; });
+addEventListener("appinstalled", () => { instalador = null; show("btnInstall", false); toast("¡App instalada!"); });
 $("btnInstall").addEventListener("click", async () => {
-    if(!instalador) return;
-    instalador.prompt(); await instalador.userChoice;
-    instalador = null; show("btnInstall", false);
+    if(instalador){
+        instalador.prompt();
+        const r = await instalador.userChoice; instalador = null;
+        if(r.outcome === "accepted") show("btnInstall", false);
+        return;
+    }
+    abrirAyudaInstalar();                              // el navegador aún no ofreció instalar: guía + diagnóstico
 });
+async function abrirAyudaInstalar(){
+    const ua = navigator.userAgent, ios = /iphone|ipad/i.test(ua), and = /android/i.test(ua),
+          ff = /firefox/i.test(ua), saf = /safari/i.test(ua) && !/chrome|crios|android/i.test(ua);
+    $("instPasos").textContent = ios ? "En iPhone o iPad usa Safari: toca Compartir y luego «Añadir a pantalla de inicio»."
+        : ff && !and ? "Firefox de escritorio no permite instalar apps web. Abre esta página en Chrome o Edge."
+        : saf ? "En Safari (Mac): menú Archivo → «Añadir al Dock»."
+        : and ? "En Chrome (Android): toca el menú ⋮ y elige «Instalar app» o «Añadir a la pantalla de inicio»."
+        : "En Chrome o Edge: busca el icono de instalar (⊕ o un monitor con flecha) al final de la barra de direcciones, o abre el menú ⋮ → «Guardar y compartir» → «Instalar página como aplicación».";
+    const d = [];
+    d.push(location.protocol === "https:" || location.hostname === "localhost" ? "✔ Conexión segura (HTTPS)" : "✘ La página no usa HTTPS");
+    try{
+        const r = await fetch(document.querySelector("link[rel=manifest]").href, {cache: "no-store"});
+        const m = await r.json();
+        d.push(r.ok ? "✔ Manifiesto cargado" : "✘ Manifiesto no encontrado");
+        const tam = (m.icons || []).map(i => i.sizes).join(" ");
+        d.push(/192x192/.test(tam) && /512x512/.test(tam) ? "✔ Íconos 192 y 512 declarados" : "✘ Faltan íconos 192x192 o 512x512");
+        const ic = await fetch(new URL(m.icons[0].src, r.url), {cache: "no-store"});
+        d.push(ic.ok ? "✔ Los archivos de íconos existen" : "✘ No se encuentra el ícono " + m.icons[0].src + " (sube la carpeta icons)");
+    }catch(e){ d.push("✘ No se pudo leer el manifiesto o sus íconos (revisa que manifest.webmanifest y la carpeta icons estén subidos)"); }
+    try{ const reg = await navigator.serviceWorker.getRegistration(); d.push(reg ? "✔ Service worker registrado" : "✘ Service worker no registrado (recarga la página)"); }
+    catch(e){ d.push("✘ Service worker no disponible en este navegador"); }
+    $("instDiag").innerHTML = d.map(x => `<li>${esc(x)}</li>`).join("");
+    $("dlgInstalar").showModal();
+}
+$("btnCerrarInst").addEventListener("click", () => $("dlgInstalar").close());
 if(/iphone|ipad/i.test(navigator.userAgent) && !navigator.standalone) show("iosHint", true);
 
 /* Acción que llegó por la URL (notificación tocada con la app cerrada) */
