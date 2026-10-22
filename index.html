@@ -5,68 +5,77 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tareas</title>
 <meta name="description" content="Administra tus tareas con recordatorios.">
-<meta name="theme-color" content="#000020">
+<meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-:root{color-scheme:dark;--bg:#000020;--card:#0a0a35;--text:#eef0ff;--muted:#b3b8e0;--line:#5a63b5;--borde:#1a1a5c;--primary:#5da3ec;--onp:#000020;
-  --ok:#86efac;--okbg:#14532d;--warn:#fcd34d;--warnbg:#78350f;--bad:#fca5a5;--badbg:#7f1d1d;--soon:#b4c0ff;--soonbg:#16165e}
+:root{color-scheme:dark;--bg:#0a0a0a;--card:#141414;--card2:#1b1b1b;--text:#f5f5f5;--muted:#a3a3a3;--line:#6b6b6b;--borde:#262626;--primary:#f5f5f5;--onp:#0a0a0a;
+  --ok:#4ade80;--okbg:#052e16;--warn:#fbbf24;--warnbg:#3a2a05;--bad:#f87171;--badbg:#3b0d0d;--soon:#d4d4d4;--soonbg:#262626;--r:18px}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,"Segoe UI",Arial,sans-serif;font-size:17px;line-height:1.5;background:var(--bg);color:var(--text);padding-bottom:110px}
-.wrap{max-width:860px;margin:0 auto;padding:14px}
-h1{font-size:1.5rem}h2{font-size:1.25rem;margin-bottom:12px}h3{font-size:1.1rem}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.5;color:var(--text);padding-bottom:110px;
+  background:radial-gradient(1000px 420px at 50% -8%,#1f1f1f 0%,#0a0a0a 62%) fixed,#0a0a0a}
+.wrap{max-width:860px;margin:0 auto;padding:0 14px 14px}
+h1{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}h2{font-size:1.25rem;font-weight:700;letter-spacing:-.01em;margin-bottom:12px}h3{font-size:1.1rem;font-weight:650;letter-spacing:-.01em}
 button,input,select,textarea{font:inherit;color:inherit}
-button{min-height:44px;padding:8px 16px;border-radius:10px;border:2px solid var(--primary);background:var(--primary);color:var(--onp);font-weight:600;cursor:pointer}
-button.sec{background:transparent;color:var(--primary)}
+button{min-height:44px;padding:8px 18px;border-radius:12px;border:1px solid transparent;background:var(--primary);color:var(--onp);font-weight:600;cursor:pointer;transition:transform .15s,background .15s,border-color .15s,filter .15s}
+button:hover{filter:brightness(.92)}button:active{transform:scale(.97)}
+button.sec{background:transparent;color:var(--text);border-color:#3f3f3f}
+button.sec:hover{background:#1f1f1f;border-color:#555;filter:none}
 button.peligro{background:#b91c1c;border-color:#b91c1c;color:#fff}
-button[disabled]{opacity:.6;cursor:not-allowed}
-:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+button[disabled]{opacity:.55;cursor:not-allowed}
+:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .hidden{display:none!important}
-header.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+header.bar{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+  margin:0 -14px 16px;padding:12px 14px;background:rgba(10,10,10,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--borde)}
 .bar .acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .bar .mail{color:var(--muted);font-size:.9rem;word-break:break-all}
-.card{background:var(--card);border:1px solid var(--borde);border-radius:14px;padding:16px;margin-bottom:14px}
-.nota{background:var(--soonbg);color:var(--soon);border-radius:10px;padding:12px;margin-bottom:12px;font-size:.95rem}
-.nota.warn{background:var(--warnbg);color:var(--warn)}
+.card{background:linear-gradient(180deg,#171717,#121212);border:1px solid var(--borde);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 10px 30px rgba(0,0,0,.35)}
+.nota{background:var(--card2);color:#d4d4d4;border:1px solid #2e2e2e;border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:.95rem}
+.nota.warn{background:var(--warnbg);color:var(--warn);border-color:#5a4210}
 .nota .acc{margin-top:8px}
-label{display:block;font-weight:600;margin:12px 0 4px}
-input,select,textarea{width:100%;min-height:44px;padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:var(--bg)}
+label{display:block;font-weight:600;font-size:.95rem;margin:14px 0 5px;color:#e5e5e5}
+input,select,textarea{width:100%;min-height:46px;padding:10px 13px;border-radius:12px;border:1px solid var(--line);background:#0a0a0a;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
 textarea{min-height:90px;resize:vertical}
 .err{color:var(--bad);font-size:.9rem;margin-top:4px;min-height:1.2em}
-@media(prefers-color-scheme:dark){.err{color:#fca5a5}}
 input[aria-invalid="true"]{border-color:var(--bad)}
 .fila{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fila3{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
-.filtros .grupo{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.filtros{display:flex;margin-bottom:16px}
+.filtros .grupo{display:flex;gap:4px;flex:1;flex-wrap:wrap;background:var(--card);border:1px solid var(--borde);border-radius:999px;padding:4px}
+.filtros button{flex:1 1 auto;border-radius:999px;border:none;background:transparent;color:var(--muted);padding:8px 14px}
+.filtros button:hover{color:var(--text);filter:none}
 .filtros button[aria-pressed="true"]{background:var(--primary);color:var(--onp)}
-.filtros button[aria-pressed="false"]{background:transparent;color:var(--primary)}
 ul{list-style:none}
-.tarea{background:var(--card);border:1px solid var(--borde);border-left:8px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
-.tarea.e-vencida{border-left-color:var(--bad)}.tarea.e-proxima{border-left-color:var(--warn)}
-.tarea.e-pendiente{border-left-color:var(--soon)}.tarea.e-realizada{border-left-color:var(--ok)}
+.tarea{position:relative;background:linear-gradient(180deg,#171717,#121212);border:1px solid var(--borde);border-radius:var(--r);padding:16px 16px 16px 24px;margin-bottom:12px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 8px 24px rgba(0,0,0,.3);transition:transform .15s,border-color .15s}
+.tarea:hover{transform:translateY(-1px);border-color:#3a3a3a}
+.tarea::before{content:"";position:absolute;left:9px;top:16px;bottom:16px;width:4px;border-radius:4px;background:var(--line)}
+.tarea.e-vencida::before{background:var(--bad)}.tarea.e-proxima::before{background:var(--warn)}
+.tarea.e-pendiente::before{background:#a3a3a3}.tarea.e-realizada::before{background:var(--ok)}
 .tarea.e-realizada h3{text-decoration:line-through;color:var(--muted)}
 .cab{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
-.badge{font-size:.85rem;font-weight:700;border-radius:999px;padding:3px 12px;white-space:nowrap}
+.badge{font-size:.8rem;font-weight:700;letter-spacing:.02em;border-radius:999px;padding:3px 12px;white-space:nowrap}
 .b-vencida{background:var(--badbg);color:var(--bad)}.b-proxima{background:var(--warnbg);color:var(--warn)}
 .b-pendiente{background:var(--soonbg);color:var(--soon)}.b-realizada{background:var(--okbg);color:var(--ok)}
 .tarea p{margin-top:4px}.tarea .mut{color:var(--muted);font-size:.95rem}
 .tarea .com{white-space:pre-wrap;word-break:break-word}
-.acciones{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.vacio{text-align:center;color:var(--muted);padding:30px 10px}
-.fab{position:fixed;right:16px;bottom:16px;z-index:20;box-shadow:0 4px 14px rgba(0,0,0,.35);border-radius:999px;padding:12px 22px}
-dialog{border:none;border-radius:16px;padding:20px;width:min(560px,94vw);max-height:92vh;overflow:auto;background:var(--card);color:var(--text)}
-dialog::backdrop{background:rgba(0,0,0,.6)}
-.pie{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:18px}
+.acciones{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.vacio{text-align:center;color:var(--muted);padding:34px 10px}
+.fab{position:fixed;right:16px;bottom:16px;z-index:20;border-radius:999px;padding:13px 24px;font-weight:700;
+  box-shadow:0 10px 30px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.15),0 0 24px rgba(255,255,255,.12)}
+dialog{border:1px solid var(--borde);border-radius:22px;padding:22px;width:min(560px,94vw);max-height:92vh;overflow:auto;background:linear-gradient(180deg,#181818,#101010);color:var(--text);box-shadow:0 30px 80px rgba(0,0,0,.7)}
+dialog::backdrop{background:rgba(0,0,0,.72);backdrop-filter:blur(4px)}
+.pie{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:20px}
 #alertas{position:fixed;inset:0;z-index:50;display:grid;gap:10px;padding:14px;align-content:center;justify-items:center;overflow:auto;pointer-events:none}
-#alertas:not(:empty){background:rgba(0,0,0,.65);pointer-events:auto}
-@keyframes pulso{50%{box-shadow:0 0 0 12px rgba(245,158,11,.55)}}
-.alerta{width:min(520px,100%);background:var(--card);border:4px solid var(--warn);border-radius:16px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:pulso 1s ease-in-out infinite}
-.alerta strong{display:block;font-size:1.35rem}
+#alertas:not(:empty){background:rgba(0,0,0,.78);backdrop-filter:blur(5px);pointer-events:auto}
+@keyframes pulso{50%{box-shadow:0 0 0 12px rgba(251,191,36,.45)}}
+.alerta{width:min(520px,100%);background:linear-gradient(180deg,#1a1a1a,#101010);border:2px solid var(--warn);border-radius:22px;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.6);animation:pulso 1s ease-in-out infinite}
+.alerta strong{display:block;font-size:1.35rem;letter-spacing:-.01em}
 .alerta .mut{color:var(--muted)}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:var(--card);border:1px solid var(--primary);color:#fff;border-radius:10px;padding:10px 18px;z-index:60;max-width:92vw;text-align:center}
-details{margin-top:8px}summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--primary);font-weight:600}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#f5f5f5;color:#0a0a0a;font-weight:600;border-radius:999px;padding:11px 20px;z-index:60;max-width:92vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+details{margin-top:8px}summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--text);font-weight:600}
 details p{margin-top:6px;color:var(--muted)}
 .opciones{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
 @media(max-width:520px){.fila{grid-template-columns:1fr}.acciones button{flex:1 1 40%}}
@@ -141,6 +150,19 @@ details p{margin-top:6px;color:var(--muted)}
         <div class="fila">
             <div><label for="fFecha">Fecha</label><input id="fFecha" type="date" required aria-describedby="eFecha"><p id="eFecha" class="err" role="alert"></p></div>
             <div><label for="fHora">Hora de ejecución</label><input id="fHora" type="time" required aria-describedby="eHora"><p id="eHora" class="err" role="alert"></p></div>
+        </div>
+        <label for="fRepite">Repetir</label>
+        <select id="fRepite">
+            <option value="none">No se repite</option>
+            <option value="diaria">Todos los días</option>
+            <option value="semanal">Todas las semanas</option>
+            <option value="mensual">Todos los meses</option>
+        </select>
+        <div id="boxRepetir" class="hidden">
+            <label for="fHasta">Repetir hasta (opcional)</label>
+            <input id="fHasta" type="date" aria-describedby="eHasta">
+            <p id="eHasta" class="err" role="alert"></p>
+            <p style="color:var(--muted);font-size:.9rem">Al marcar la tarea como realizada se crea sola la siguiente. En los meses que no tienen ese día se usa el último día del mes.</p>
         </div>
         <label for="fRec">Recordatorio</label>
         <select id="fRec">
@@ -222,7 +244,7 @@ details p{margin-top:6px;color:var(--muted)}
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail}
     from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import {initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy}
+import {initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy}
     from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 // Mismo proyecto de Firebase que las demás apps. Sesión propia ("tareas") para no cerrar la de otras apps.
@@ -301,6 +323,7 @@ function render(){
         return `<li class="tarea e-${e}" data-id="${t.id}">
             <div class="cab"><h3>${esc(t.titulo)}</h3><span class="badge b-${e}">${ETIQ[e]}</span></div>
             <p>📅 ${esc(fmtFecha(t))}${rel}</p>
+            ${t.repite && t.repite !== "none" ? `<p class="mut">🔁 ${esc(textoRepite(t))}</p>` : ""}
             ${t.estado !== "realizada" && t.recordar != null ? `<p class="mut">🔔 Aviso ${esc(textoMin(t.recordar))}${t.posponerHasta ? " (pospuesto)" : ""}</p>` : ""}
             ${t.comentarios ? `<p class="com mut">${esc(t.comentarios)}</p>` : ""}
             <div class="acciones">
@@ -330,12 +353,57 @@ document.querySelectorAll(".filtros [data-f]").forEach(b => b.addEventListener("
     render();
 }));
 
+/* ---------- Tareas recurrentes ---------- */
+const fechaDe = ts => { const d = new Date(ts); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+function textoRepite(t){
+    const d = new Date(t.ts);
+    let x = t.repite === "diaria" ? "Todos los días"
+        : t.repite === "semanal" ? "Cada " + d.toLocaleDateString("es", {weekday: "long"})
+        : "Cada mes, el día " + (t.ancla || d.getDate());
+    if(t.repiteHasta) x += " (hasta el " + new Date(t.repiteHasta + "T12:00:00").toLocaleDateString("es", {day: "numeric", month: "short", year: "numeric"}) + ")";
+    return x;
+}
+function siguienteTs(t){                 // próxima ocurrencia posterior a ahora
+    const base = new Date(t.ts), hh = base.getHours(), mm = base.getMinutes(), ancla = t.ancla || base.getDate();
+    let y = base.getFullYear(), m = base.getMonth(), d = base.getDate(), ts = t.ts, n = 0;
+    do{
+        if(t.repite === "diaria") d += 1;
+        else if(t.repite === "semanal") d += 7;
+        else{ m += 1; d = Math.min(ancla, new Date(y, m + 1, 0).getDate()); }
+        ts = new Date(y, m, d, hh, mm).getTime();
+        const x = new Date(ts); y = x.getFullYear(); m = x.getMonth(); d = x.getDate();
+    }while(ts <= Date.now() && ++n < 2000);
+    return ts;
+}
+function generarSiguiente(t){            // crea la siguiente ocurrencia; devuelve {id, ts} o null si la serie terminó
+    const ts = siguienteTs(t), f = fechaDe(ts);
+    if(t.repiteHasta && f > t.repiteHasta) return null;
+    const ref = doc(colTareas());
+    guardado(setDoc(ref, {titulo: t.titulo, fecha: f, hora: t.hora, ts, recordar: t.recordar ?? null, comentarios: t.comentarios || "",
+        estado: "pendiente", repite: t.repite, repiteHasta: t.repiteHasta || null, ancla: t.ancla || new Date(t.ts).getDate(),
+        creada: Date.now(), actualizada: Date.now(), posponerHasta: null, notificadoPara: null}));
+    return {id: ref.id, ts};
+}
+function quitarSiguiente(t){             // al reabrir una tarea, elimina la siguiente si aún está pendiente
+    const nx = t.siguienteId && tareas.find(x => x.id === t.siguienteId);
+    if(nx && nx.estado !== "realizada") guardado(deleteDoc(refTarea(nx.id)));
+}
+const repiteActiva = t => t.repite && t.repite !== "none";
+
 function marcar(t, estado){
     const d = {estado, actualizada: Date.now()};
-    if(estado === "pendiente"){ d.posponerHasta = null; d.notificadoPara = null; }
+    let msg = estado === "realizada" ? "Tarea marcada como realizada." : "Tarea reabierta.";
+    if(estado === "pendiente"){
+        d.posponerHasta = null; d.notificadoPara = null;
+        if(t.siguienteId){ quitarSiguiente(t); d.siguienteId = null; }
+    }else if(repiteActiva(t) && !t.siguienteId){
+        const sg = generarSiguiente(t);
+        if(sg){ d.siguienteId = sg.id; t.siguienteId = sg.id; msg += " Próxima: " + fmtFecha({ts: sg.ts}) + "."; }
+        else msg += " La repetición terminó.";
+    }
     guardado(updateDoc(refTarea(t.id), d));
     quitarAlerta(t.id);
-    toast(estado === "realizada" ? "Tarea marcada como realizada." : "Tarea reabierta.");
+    toast(msg);
 }
 function confirmar(texto){
     return new Promise(res => {
@@ -345,7 +413,7 @@ function confirmar(texto){
     });
 }
 async function borrar(t){
-    if(!await confirmar(`Se eliminará «${t.titulo}». Esta acción no se puede deshacer.`)) return;
+    if(!await confirmar(`Se eliminará «${t.titulo}». Esta acción no se puede deshacer.` + (repiteActiva(t) && t.estado !== "realizada" ? " Como se repite, también se detendrá la repetición." : ""))) return;
     guardado(deleteDoc(refTarea(t.id)));
     quitarAlerta(t.id);
     toast("Tarea eliminada.");
@@ -354,9 +422,17 @@ async function borrar(t){
 /* ---------- Formulario ---------- */
 const PRESETS = ["0", "5", "10", "15", "30", "60", "120", "1440"];
 function limpiarErrores(){
-    ["eTitulo", "eFecha", "eHora", "eRec"].forEach(i => $(i).textContent = "");
-    ["fTitulo", "fFecha", "fHora", "fRecNum"].forEach(i => $(i).removeAttribute("aria-invalid"));
+    ["eTitulo", "eFecha", "eHora", "eRec", "eHasta"].forEach(i => $(i).textContent = "");
+    ["fTitulo", "fFecha", "fHora", "fRecNum", "fHasta"].forEach(i => $(i).removeAttribute("aria-invalid"));
 }
+function actualizarRepite(){
+    const f = $("fFecha").value, d = f ? new Date(f + "T12:00:00") : new Date(), o = $("fRepite").options;
+    o[2].textContent = "Todas las semanas (cada " + d.toLocaleDateString("es", {weekday: "long"}) + ")";
+    o[3].textContent = "Todos los meses (el día " + d.getDate() + ")";
+    show("boxRepetir", $("fRepite").value !== "none");
+}
+$("fRepite").addEventListener("change", actualizarRepite);
+$("fFecha").addEventListener("change", actualizarRepite);
 function actualizarHintPermiso(){
     show("hintPermiso", soporta && Notification.permission === "default" && $("fRec").value !== "none");
 }
@@ -371,6 +447,9 @@ function abrirForm(t){
         $("fFecha").value = hoyStr(); $("fHora").value = pad(d.getHours()) + ":00";
         if(d.getDate() !== new Date().getDate()) $("fFecha").value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
     }
+    $("fRepite").value = t && t.repite ? t.repite : "none";
+    $("fHasta").value = t && t.repiteHasta ? t.repiteHasta : "";
+    actualizarRepite();
     const r = t ? t.recordar : 15;
     if(r == null) $("fRec").value = "none";
     else if(PRESETS.includes(String(r))) $("fRec").value = String(r);
@@ -406,16 +485,23 @@ $("formTarea").addEventListener("submit", async e => {
         if(!Number.isInteger(n) || n < 1 || n * u > 525600){ invalido("fRecNum", "eRec", "Escribe un número entero mayor que 0 (máximo 1 año)."); ok = false; foco = foco || "fRecNum"; }
         else recordar = n * u;
     }else if(v !== "none") recordar = Number(v);
+    const repite = $("fRepite").value, hasta = $("fHasta").value;
+    if(repite !== "none" && hasta && fecha && hasta < fecha){ invalido("fHasta", "eHasta", "La fecha final debe ser igual o posterior a la fecha de inicio."); ok = false; foco = foco || "fHasta"; }
     if(!ok){ $(foco).focus(); return; }
 
     if(recordar != null) await pedirPermiso();   // solo cuando hay un recordatorio que lo necesite
 
     const id = $("formTarea").dataset.id, prev = tareas.find(x => x.id === id);
     const datos = {titulo, fecha, hora, ts: calcTs(fecha, hora), recordar, comentarios: $("fComentarios").value.trim(),
-        estado: $("fEstado").value, actualizada: Date.now()};
+        estado: $("fEstado").value, actualizada: Date.now(),
+        repite, repiteHasta: repite !== "none" && hasta ? hasta : null, ancla: Number(fecha.slice(8, 10))};
     if(!prev || prev.ts !== datos.ts || prev.recordar !== datos.recordar || (prev.estado === "realizada" && datos.estado === "pendiente")){
         datos.posponerHasta = null; datos.notificadoPara = null;
     }
+    if(prev && prev.estado !== "realizada" && datos.estado === "realizada" && repiteActiva(datos) && !prev.siguienteId){
+        const sg = generarSiguiente({...prev, ...datos}); if(sg) datos.siguienteId = sg.id;
+    }
+    if(prev && prev.estado === "realizada" && datos.estado === "pendiente" && prev.siguienteId){ quitarSiguiente(prev); datos.siguienteId = null; }
     if(prev) guardado(updateDoc(refTarea(id), datos));
     else guardado(addDoc(colTareas(), {...datos, creada: Date.now(), posponerHasta: null, notificadoPara: null}));
     $("dlgTarea").close();
