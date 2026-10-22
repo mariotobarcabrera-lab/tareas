@@ -1,4 +1,4 @@
-const CACHE = "tareas-v4"; // cambia el número al publicar una versión nueva
+const CACHE = "tareas-v5"; // cambia el número al publicar una versión nueva
 const BASE = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {

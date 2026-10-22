@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tareas</title>
 <meta name="description" content="Administra tus tareas con recordatorios.">
-<meta name="theme-color" content="#151515">
+<meta name="theme-color" content="#000020">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-:root{color-scheme:dark;--bg:#151515;--card:#0b2748;--text:#eaf2fb;--muted:#a9c1dc;--line:#4a82bd;--borde:#0d366b;--primary:#5da3ec;--onp:#04132b;
-  --ok:#86efac;--okbg:#14532d;--warn:#fcd34d;--warnbg:#78350f;--bad:#fca5a5;--badbg:#7f1d1d;--soon:#9cc9f7;--soonbg:#0d366b}
+:root{color-scheme:dark;--bg:#000020;--card:#0a0a35;--text:#eef0ff;--muted:#b3b8e0;--line:#5a63b5;--borde:#1a1a5c;--primary:#5da3ec;--onp:#000020;
+  --ok:#86efac;--okbg:#14532d;--warn:#fcd34d;--warnbg:#78350f;--bad:#fca5a5;--badbg:#7f1d1d;--soon:#b4c0ff;--soonbg:#16165e}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,"Segoe UI",Arial,sans-serif;font-size:17px;line-height:1.5;background:var(--bg);color:var(--text);padding-bottom:110px}
 .wrap{max-width:860px;margin:0 auto;padding:14px}
@@ -31,7 +31,7 @@ header.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-conte
 .nota.warn{background:var(--warnbg);color:var(--warn)}
 .nota .acc{margin-top:8px}
 label{display:block;font-weight:600;margin:12px 0 4px}
-input,select,textarea{width:100%;min-height:44px;padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:#032042}
+input,select,textarea{width:100%;min-height:44px;padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:var(--bg)}
 textarea{min-height:90px;resize:vertical}
 .err{color:var(--bad);font-size:.9rem;margin-top:4px;min-height:1.2em}
 @media(prefers-color-scheme:dark){.err{color:#fca5a5}}
@@ -65,7 +65,7 @@ dialog::backdrop{background:rgba(0,0,0,.6)}
 .alerta{width:min(520px,100%);background:var(--card);border:4px solid var(--warn);border-radius:16px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:pulso 1s ease-in-out infinite}
 .alerta strong{display:block;font-size:1.35rem}
 .alerta .mut{color:var(--muted)}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#032042;border:1px solid var(--primary);color:#fff;border-radius:10px;padding:10px 18px;z-index:60;max-width:92vw;text-align:center}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:var(--card);border:1px solid var(--primary);color:#fff;border-radius:10px;padding:10px 18px;z-index:60;max-width:92vw;text-align:center}
 details{margin-top:8px}summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--primary);font-weight:600}
 details p{margin-top:6px;color:var(--muted)}
 .opciones{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
@@ -287,7 +287,9 @@ function efectivo(t){            // momento en que debe sonar el recordatorio
 
 /* ---------- Lista ---------- */
 function render(){
-    const orden = tareas.slice().sort((a, b) => a.ts - b.ts);
+    const pendA = tareas.filter(t => t.estado !== "realizada").sort((a, b) => a.ts - b.ts);
+    const realA = tareas.filter(t => t.estado === "realizada").sort((a, b) => (b.actualizada || b.ts) - (a.actualizada || a.ts));
+    const orden = [...pendA, ...realA];
     const pend = orden.filter(t => t.estado !== "realizada").length;
     $("nTodas").textContent = "(" + orden.length + ")";
     $("nPend").textContent = "(" + pend + ")";
