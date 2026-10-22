@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tareas</title>
+<meta name="description" content="Administra tus tareas con recordatorios.">
+<meta name="theme-color" content="#1d4ed8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--bg:#f3f4f6;--card:#fff;--text:#111827;--muted:#4b5563;--line:#9ca3af;--primary:#1d4ed8;--onp:#fff;
+  --ok:#166534;--okbg:#dcfce7;--warn:#92400e;--warnbg:#fef3c7;--bad:#991b1b;--badbg:#fee2e2;--soon:#1e40af;--soonbg:#dbeafe}
+@media(prefers-color-scheme:dark){:root{--bg:#0b1220;--card:#162033;--text:#f3f4f6;--muted:#cbd5e1;--line:#64748b;--primary:#60a5fa;--onp:#0b1220;
+  --ok:#86efac;--okbg:#14532d;--warn:#fcd34d;--warnbg:#78350f;--bad:#fca5a5;--badbg:#7f1d1d;--soon:#93c5fd;--soonbg:#1e3a8a}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,"Segoe UI",Arial,sans-serif;font-size:17px;line-height:1.5;background:var(--bg);color:var(--text);padding-bottom:110px}
+.wrap{max-width:860px;margin:0 auto;padding:14px}
+h1{font-size:1.5rem}h2{font-size:1.25rem;margin-bottom:12px}h3{font-size:1.1rem}
+button,input,select,textarea{font:inherit;color:inherit}
+button{min-height:44px;padding:8px 16px;border-radius:10px;border:2px solid var(--primary);background:var(--primary);color:var(--onp);font-weight:600;cursor:pointer}
+button.sec{background:transparent;color:var(--primary)}
+button.peligro{background:var(--bad);border-color:var(--bad);color:#fff}
+@media(prefers-color-scheme:dark){button.peligro{background:#b91c1c;border-color:#b91c1c}}
+button[disabled]{opacity:.6;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.hidden{display:none!important}
+header.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.bar .acc{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar .mail{color:var(--muted);font-size:.9rem;word-break:break-all}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.nota{background:var(--soonbg);color:var(--soon);border-radius:10px;padding:12px;margin-bottom:12px;font-size:.95rem}
+.nota.warn{background:var(--warnbg);color:var(--warn)}
+.nota .acc{margin-top:8px}
+label{display:block;font-weight:600;margin:12px 0 4px}
+input,select,textarea{width:100%;min-height:44px;padding:9px 12px;border-radius:10px;border:2px solid var(--line);background:var(--card)}
+textarea{min-height:90px;resize:vertical}
+.err{color:var(--bad);font-size:.9rem;margin-top:4px;min-height:1.2em}
+@media(prefers-color-scheme:dark){.err{color:#fca5a5}}
+input[aria-invalid="true"]{border-color:var(--bad)}
+.fila{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fila3{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.filtros{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.filtros .grupo{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.filtros button[aria-pressed="true"]{background:var(--primary);color:var(--onp)}
+.filtros button[aria-pressed="false"]{background:transparent;color:var(--primary)}
+ul{list-style:none}
+.tarea{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.tarea.e-vencida{border-left-color:var(--bad)}.tarea.e-proxima{border-left-color:var(--warn)}
+.tarea.e-pendiente{border-left-color:var(--soon)}.tarea.e-realizada{border-left-color:var(--ok)}
+.tarea.e-realizada h3{text-decoration:line-through;color:var(--muted)}
+.cab{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.badge{font-size:.85rem;font-weight:700;border-radius:999px;padding:3px 12px;white-space:nowrap}
+.b-vencida{background:var(--badbg);color:var(--bad)}.b-proxima{background:var(--warnbg);color:var(--warn)}
+.b-pendiente{background:var(--soonbg);color:var(--soon)}.b-realizada{background:var(--okbg);color:var(--ok)}
+.tarea p{margin-top:4px}.tarea .mut{color:var(--muted);font-size:.95rem}
+.tarea .com{white-space:pre-wrap;word-break:break-word}
+.acciones{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.vacio{text-align:center;color:var(--muted);padding:30px 10px}
+.fab{position:fixed;right:16px;bottom:16px;z-index:20;box-shadow:0 4px 14px rgba(0,0,0,.35);border-radius:999px;padding:12px 22px}
+dialog{border:none;border-radius:16px;padding:20px;width:min(560px,94vw);max-height:92vh;overflow:auto;background:var(--card);color:var(--text)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+.pie{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:18px}
+#alertas{position:fixed;left:0;right:0;top:0;z-index:50;display:grid;gap:8px;padding:10px;max-width:640px;margin:0 auto}
+.alerta{background:var(--card);border:3px solid var(--warn);border-radius:14px;padding:14px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.alerta strong{display:block;font-size:1.1rem}
+.alerta .mut{color:var(--muted)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:#111827;color:#fff;border-radius:10px;padding:10px 18px;z-index:60;max-width:92vw;text-align:center}
+details{margin-top:8px}summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--primary);font-weight:600}
+details p{margin-top:6px;color:var(--muted)}
+.opciones{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+@media(max-width:520px){.fila{grid-template-columns:1fr}.acciones button{flex:1 1 40%}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="alertas" aria-live="assertive"></div>
+<div id="toast" class="hidden" role="status" aria-live="polite"></div>
+
+<div class="wrap">
+<header class="bar">
+    <h1>✅ Tareas</h1>
+    <div class="acc">
+        <button id="btnInstall" class="sec hidden" type="button">📲 Instalar app</button>
+        <span id="userEmail" class="mail"></span>
+        <button id="btnLogout" class="sec hidden" type="button">Cerrar sesión</button>
+    </div>
+</header>
+
+<p id="iosHint" class="nota hidden">En iPhone: toca Compartir y luego «Añadir a pantalla de inicio» para instalar la app. Los avisos del sistema solo funcionan con la app instalada (iOS 16.4 o superior).</p>
+
+<section id="authCard" class="card hidden" aria-labelledby="tAuth">
+    <h2 id="tAuth">Inicia sesión</h2>
+    <form id="formAuth" novalidate>
+        <label for="email">Correo</label>
+        <input type="email" id="email" autocomplete="email" required>
+        <label for="pass">Contraseña (mínimo 6 caracteres)</label>
+        <input type="password" id="pass" autocomplete="current-password" required>
+        <p id="authMsg" class="err" role="alert"></p>
+        <div class="pie" style="justify-content:flex-start">
+            <button type="submit">Entrar</button>
+            <button type="button" id="btnRegistro" class="sec">Crear cuenta</button>
+            <button type="button" id="btnReset" class="sec">Olvidé mi contraseña</button>
+        </div>
+    </form>
+</section>
+
+<main id="appBox" class="hidden">
+    <div id="avisoNotif" class="nota hidden" role="status"></div>
+
+    <div class="filtros">
+        <div class="grupo" role="group" aria-label="Filtrar tareas">
+            <button type="button" data-f="todas" aria-pressed="true">Todas <span id="nTodas"></span></button>
+            <button type="button" data-f="pendientes" aria-pressed="false">Pendientes <span id="nPend"></span></button>
+            <button type="button" data-f="realizadas" aria-pressed="false">Realizadas <span id="nReal"></span></button>
+        </div>
+    </div>
+
+    <p id="cargando" class="vacio">Cargando tareas…</p>
+    <ul id="lista" aria-label="Lista de tareas"></ul>
+    <p id="vacio" class="vacio hidden"></p>
+
+    <details class="card">
+        <summary>¿Cómo funcionan los avisos?</summary>
+        <p>La app te avisa a la hora del recordatorio mientras está abierta (en una pestaña, en segundo plano o instalada). Si hay permiso, el aviso sale como notificación del sistema con las opciones Posponer, Marcar como realizada y Abrir tarea; si no, aparece dentro de la app.</p>
+        <p><strong>Limitación importante:</strong> una app web no puede despertarse sola cuando está completamente cerrada, salvo que use un servidor de notificaciones push, que esta versión no incluye. Si cerraste la app, los recordatorios que vencieron te aparecerán en cuanto la abras. En celulares, el navegador puede pausar las pestañas en segundo plano, y las opciones de la notificación (botones) no existen en todos los navegadores: tocar la notificación siempre abre la tarea.</p>
+    </details>
+</main>
+</div>
+
+<button id="btnNueva" class="fab hidden" type="button">＋ Nueva tarea</button>
+
+<!-- Crear / editar -->
+<dialog id="dlgTarea" aria-labelledby="tForm">
+    <form id="formTarea" novalidate>
+        <h2 id="tForm">Nueva tarea</h2>
+        <label for="fTitulo">Título</label>
+        <input id="fTitulo" type="text" maxlength="120" required aria-describedby="eTitulo">
+        <p id="eTitulo" class="err" role="alert"></p>
+        <div class="fila">
+            <div><label for="fFecha">Fecha</label><input id="fFecha" type="date" required aria-describedby="eFecha"><p id="eFecha" class="err" role="alert"></p></div>
+            <div><label for="fHora">Hora de ejecución</label><input id="fHora" type="time" required aria-describedby="eHora"><p id="eHora" class="err" role="alert"></p></div>
+        </div>
+        <label for="fRec">Recordatorio</label>
+        <select id="fRec">
+            <option value="none">Sin recordatorio</option>
+            <option value="0">A la hora de la tarea</option>
+            <option value="5">5 minutos antes</option>
+            <option value="10">10 minutos antes</option>
+            <option value="15" selected>15 minutos antes</option>
+            <option value="30">30 minutos antes</option>
+            <option value="60">1 hora antes</option>
+            <option value="120">2 horas antes</option>
+            <option value="1440">1 día antes</option>
+            <option value="custom">Personalizado…</option>
+        </select>
+        <div id="boxCustom" class="fila3 hidden" style="margin-top:8px">
+            <div><label for="fRecNum">Cantidad</label><input id="fRecNum" type="number" min="1" step="1" inputmode="numeric" value="30" aria-describedby="eRec"></div>
+            <div><label for="fRecUni">Unidad</label><select id="fRecUni"><option value="1">minutos</option><option value="60">horas</option><option value="1440">días</option></select></div>
+        </div>
+        <p id="eRec" class="err" role="alert"></p>
+        <p id="hintPermiso" class="mut hidden" style="color:var(--muted);font-size:.9rem">Para avisarte te pediremos permiso de notificaciones al guardar.</p>
+        <label for="fComentarios">Comentarios (opcional)</label>
+        <textarea id="fComentarios" maxlength="1000"></textarea>
+        <label for="fEstado">Estado</label>
+        <select id="fEstado"><option value="pendiente">Pendiente</option><option value="realizada">Realizada</option></select>
+        <div class="pie">
+            <button type="button" id="btnCancelarForm" class="sec">Cancelar</button>
+            <button type="submit">Guardar tarea</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Confirmar eliminación -->
+<dialog id="dlgConfirm" aria-labelledby="tConf">
+    <form method="dialog">
+        <h2 id="tConf">¿Eliminar tarea?</h2>
+        <p id="confTxt"></p>
+        <div class="pie">
+            <button type="submit" value="no" class="sec">Cancelar</button>
+            <button type="submit" value="si" class="peligro">Sí, eliminar</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- Posponer -->
+<dialog id="dlgPosponer" aria-labelledby="tPos">
+    <h2 id="tPos">Posponer recordatorio</h2>
+    <p id="posTxt"></p>
+    <div class="opciones" role="group" aria-label="Posponer por">
+        <button type="button" data-min="5">5 minutos</button>
+        <button type="button" data-min="10">10 minutos</button>
+        <button type="button" data-min="15">15 minutos</button>
+        <button type="button" data-min="30">30 minutos</button>
+        <button type="button" data-min="60">1 hora</button>
+    </div>
+    <form id="formPosCustom" novalidate>
+        <div class="fila3">
+            <div><label for="pNum">Otro tiempo</label><input id="pNum" type="number" min="1" step="1" inputmode="numeric" placeholder="Ej: 45"></div>
+            <div><label for="pUni">Unidad</label><select id="pUni"><option value="1">minutos</option><option value="60">horas</option><option value="1440">días</option></select></div>
+        </div>
+        <p id="ePos" class="err" role="alert"></p>
+        <div class="pie">
+            <button type="button" id="btnCancelarPos" class="sec">Cancelar</button>
+            <button type="submit">Posponer</button>
+        </div>
+    </form>
+</dialog>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail}
+    from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy}
+    from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+// Mismo proyecto de Firebase que las demás apps. Sesión propia ("tareas") para no cerrar la de otras apps.
+const firebaseConfig = {
+    apiKey: "AIzaSyAldbC3MFpbIZqiCs3TLX6dnMOAzDWS19o",
+    authDomain: "siteg-691cd.firebaseapp.com",
+    projectId: "siteg-691cd",
+    appId: "1:953137572437:web:cc163afa907309005042dc"
+};
+const app = initializeApp(firebaseConfig, "tareas");
+const auth = getAuth(app);
+let db;
+try{ db = initializeFirestore(app, {localCache: persistentLocalCache({tabManager: persistentMultipleTabManager()})}); }
+catch(e){ db = getFirestore(app); }
+
+/* ---------- Utilidades ---------- */
+const $ = id => document.getElementById(id);
+const show = (id, v) => $(id).classList.toggle("hidden", !v);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2, "0");
+const hoyStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const calcTs = (f, h) => new Date(f + "T" + h).getTime();
+let toastT = null;
+function toast(m){ const t = $("toast"); t.textContent = m; t.classList.remove("hidden"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.add("hidden"), 4000); }
+
+const soporta = "Notification" in window && "serviceWorker" in navigator;
+let uid = null, tareas = [], filtro = "todas", desuscribir = null, cargado = false, accionPendiente = null;
+const alertasActivas = new Set();
+const refTarea = id => doc(db, "usuarios", uid, "tareas", id);
+const colTareas = () => collection(db, "usuarios", uid, "tareas");
+const guardado = p => p.catch(e => toast("No se pudo guardar (" + (e.code || e.message) + ")."));
+
+function textoMin(min){
+    if(min === 0) return "a la hora de la tarea";
+    if(min % 1440 === 0){ const d = min / 1440; return d + (d === 1 ? " día antes" : " días antes"); }
+    if(min % 60 === 0){ const h = min / 60; return h + (h === 1 ? " hora antes" : " horas antes"); }
+    return min + " min antes";
+}
+function textoDur(min){
+    if(min % 1440 === 0){ const d = min / 1440; return d + (d === 1 ? " día" : " días"); }
+    if(min % 60 === 0){ const h = min / 60; return h + (h === 1 ? " hora" : " horas"); }
+    return min + " min";
+}
+function fmtFecha(t){
+    const d = new Date(t.ts), hoy = new Date();
+    const dia = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())) / 86400000);
+    const hora = d.toLocaleTimeString("es", {hour: "2-digit", minute: "2-digit"});
+    const f = dia === 0 ? "Hoy" : dia === 1 ? "Mañana" : dia === -1 ? "Ayer"
+        : d.toLocaleDateString("es", {weekday: "short", day: "numeric", month: "short", year: d.getFullYear() !== hoy.getFullYear() ? "numeric" : undefined});
+    return f + ", " + hora;
+}
+function estadoVisual(t){
+    if(t.estado === "realizada") return "realizada";
+    const d = t.ts - Date.now();
+    return d < 0 ? "vencida" : d <= 3600000 ? "proxima" : "pendiente";
+}
+const ETIQ = {vencida: "Vencida", proxima: "Próxima", pendiente: "Pendiente", realizada: "Realizada"};
+function efectivo(t){            // momento en que debe sonar el recordatorio
+    if(t.estado === "realizada" || t.recordar == null) return null;
+    return t.posponerHasta || (t.ts - t.recordar * 60000);
+}
+
+/* ---------- Lista ---------- */
+function render(){
+    const orden = tareas.slice().sort((a, b) => a.ts - b.ts);
+    const pend = orden.filter(t => t.estado !== "realizada").length;
+    $("nTodas").textContent = "(" + orden.length + ")";
+    $("nPend").textContent = "(" + pend + ")";
+    $("nReal").textContent = "(" + (orden.length - pend) + ")";
+    const l = orden.filter(t => filtro === "todas" || (filtro === "pendientes" ? t.estado !== "realizada" : t.estado === "realizada"));
+    $("lista").innerHTML = l.map(t => {
+        const e = estadoVisual(t), min = Math.round((t.ts - Date.now()) / 60000);
+        const rel = e === "proxima" ? ` · en ${min < 1 ? "menos de 1" : min} min` : "";
+        return `<li class="tarea e-${e}" data-id="${t.id}">
+            <div class="cab"><h3>${esc(t.titulo)}</h3><span class="badge b-${e}">${ETIQ[e]}</span></div>
+            <p>📅 ${esc(fmtFecha(t))}${rel}</p>
+            ${t.estado !== "realizada" && t.recordar != null ? `<p class="mut">🔔 Aviso ${esc(textoMin(t.recordar))}${t.posponerHasta ? " (pospuesto)" : ""}</p>` : ""}
+            ${t.comentarios ? `<p class="com mut">${esc(t.comentarios)}</p>` : ""}
+            <div class="acciones">
+                <button type="button" data-a="toggle">${t.estado === "realizada" ? "↩ Reabrir" : "✔ Marcar como realizada"}</button>
+                <button type="button" data-a="editar" class="sec">Editar</button>
+                <button type="button" data-a="borrar" class="sec">Eliminar</button>
+            </div>
+        </li>`;
+    }).join("");
+    show("cargando", !cargado);
+    const v = $("vacio");
+    v.classList.toggle("hidden", !(cargado && !l.length));
+    v.textContent = !orden.length ? "Aún no tienes tareas. Pulsa «Nueva tarea» para crear la primera."
+        : filtro === "pendientes" ? "No tienes tareas pendientes. 🎉" : "Aún no hay tareas realizadas.";
+    avisoNotif();
+}
+$("lista").addEventListener("click", e => {
+    const b = e.target.closest("button"); if(!b) return;
+    const t = tareas.find(x => x.id === b.closest("li").dataset.id); if(!t) return;
+    if(b.dataset.a === "toggle") marcar(t, t.estado === "realizada" ? "pendiente" : "realizada");
+    else if(b.dataset.a === "editar") abrirForm(t);
+    else if(b.dataset.a === "borrar") borrar(t);
+});
+document.querySelectorAll(".filtros [data-f]").forEach(b => b.addEventListener("click", () => {
+    filtro = b.dataset.f;
+    document.querySelectorAll(".filtros [data-f]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    render();
+}));
+
+function marcar(t, estado){
+    const d = {estado, actualizada: Date.now()};
+    if(estado === "pendiente"){ d.posponerHasta = null; d.notificadoPara = null; }
+    guardado(updateDoc(refTarea(t.id), d));
+    quitarAlerta(t.id);
+    toast(estado === "realizada" ? "Tarea marcada como realizada." : "Tarea reabierta.");
+}
+function confirmar(texto){
+    return new Promise(res => {
+        $("confTxt").textContent = texto;
+        const d = $("dlgConfirm"); d.returnValue = ""; d.showModal();
+        d.addEventListener("close", () => res(d.returnValue === "si"), {once: true});
+    });
+}
+async function borrar(t){
+    if(!await confirmar(`Se eliminará «${t.titulo}». Esta acción no se puede deshacer.`)) return;
+    guardado(deleteDoc(refTarea(t.id)));
+    quitarAlerta(t.id);
+    toast("Tarea eliminada.");
+}
+
+/* ---------- Formulario ---------- */
+const PRESETS = ["0", "5", "10", "15", "30", "60", "120", "1440"];
+function limpiarErrores(){
+    ["eTitulo", "eFecha", "eHora", "eRec"].forEach(i => $(i).textContent = "");
+    ["fTitulo", "fFecha", "fHora", "fRecNum"].forEach(i => $(i).removeAttribute("aria-invalid"));
+}
+function actualizarHintPermiso(){
+    show("hintPermiso", soporta && Notification.permission === "default" && $("fRec").value !== "none");
+}
+function abrirForm(t){
+    limpiarErrores();
+    $("tForm").textContent = t ? "Editar tarea" : "Nueva tarea";
+    $("formTarea").dataset.id = t ? t.id : "";
+    $("fTitulo").value = t ? t.titulo : "";
+    if(t){ $("fFecha").value = t.fecha; $("fHora").value = t.hora; }
+    else{
+        const d = new Date(Date.now() + 3600000);
+        $("fFecha").value = hoyStr(); $("fHora").value = pad(d.getHours()) + ":00";
+        if(d.getDate() !== new Date().getDate()) $("fFecha").value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    }
+    const r = t ? t.recordar : 15;
+    if(r == null) $("fRec").value = "none";
+    else if(PRESETS.includes(String(r))) $("fRec").value = String(r);
+    else{
+        $("fRec").value = "custom";
+        const u = r % 1440 === 0 ? 1440 : r % 60 === 0 ? 60 : 1;
+        $("fRecUni").value = String(u); $("fRecNum").value = r / u;
+    }
+    show("boxCustom", $("fRec").value === "custom");
+    $("fComentarios").value = t ? t.comentarios || "" : "";
+    $("fEstado").value = t ? t.estado : "pendiente";
+    actualizarHintPermiso();
+    $("dlgTarea").showModal();
+    $("fTitulo").focus();
+}
+$("btnNueva").addEventListener("click", () => abrirForm(null));
+$("btnCancelarForm").addEventListener("click", () => $("dlgTarea").close());
+$("fRec").addEventListener("change", () => { show("boxCustom", $("fRec").value === "custom"); actualizarHintPermiso(); });
+
+function invalido(idInput, idErr, msg){ $(idErr).textContent = msg; if(idInput) $(idInput).setAttribute("aria-invalid", "true"); }
+$("formTarea").addEventListener("submit", async e => {
+    e.preventDefault();
+    limpiarErrores();
+    const titulo = $("fTitulo").value.trim(), fecha = $("fFecha").value, hora = $("fHora").value;
+    let ok = true, foco = null;
+    if(!titulo){ invalido("fTitulo", "eTitulo", "Escribe un título para la tarea."); ok = false; foco = foco || "fTitulo"; }
+    if(!fecha){ invalido("fFecha", "eFecha", "Elige la fecha."); ok = false; foco = foco || "fFecha"; }
+    if(!hora){ invalido("fHora", "eHora", "Elige la hora."); ok = false; foco = foco || "fHora"; }
+    let recordar = null;
+    const v = $("fRec").value;
+    if(v === "custom"){
+        const n = Number($("fRecNum").value), u = Number($("fRecUni").value);
+        if(!Number.isInteger(n) || n < 1 || n * u > 525600){ invalido("fRecNum", "eRec", "Escribe un número entero mayor que 0 (máximo 1 año)."); ok = false; foco = foco || "fRecNum"; }
+        else recordar = n * u;
+    }else if(v !== "none") recordar = Number(v);
+    if(!ok){ $(foco).focus(); return; }
+
+    if(recordar != null) await pedirPermiso();   // solo cuando hay un recordatorio que lo necesite
+
+    const id = $("formTarea").dataset.id, prev = tareas.find(x => x.id === id);
+    const datos = {titulo, fecha, hora, ts: calcTs(fecha, hora), recordar, comentarios: $("fComentarios").value.trim(),
+        estado: $("fEstado").value, actualizada: Date.now()};
+    if(!prev || prev.ts !== datos.ts || prev.recordar !== datos.recordar || (prev.estado === "realizada" && datos.estado === "pendiente")){
+        datos.posponerHasta = null; datos.notificadoPara = null;
+    }
+    if(prev) guardado(updateDoc(refTarea(id), datos));
+    else guardado(addDoc(colTareas(), {...datos, creada: Date.now(), posponerHasta: null, notificadoPara: null}));
+    $("dlgTarea").close();
+    toast(prev ? "Tarea actualizada." : "Tarea creada.");
+});
+
+/* ---------- Notificaciones y recordatorios ---------- */
+async function pedirPermiso(){
+    if(!soporta || Notification.permission !== "default") return;
+    try{ await Notification.requestPermission(); }catch(e){}
+    avisoNotif();
+}
+function avisoNotif(){
+    const box = $("avisoNotif");
+    if(!uid){ show("avisoNotif", false); return; }
+    const hayRec = tareas.some(t => t.estado !== "realizada" && t.recordar != null);
+    let html = "", warn = false;
+    if(!soporta){
+        html = "ℹ️ Este navegador no permite notificaciones del sistema. Los recordatorios aparecerán dentro de la app mientras esté abierta.";
+        warn = true;
+    }else if(Notification.permission === "denied"){
+        html = "🔕 Bloqueaste las notificaciones. Los recordatorios se mostrarán solo dentro de la app. Puedes permitirlas en los ajustes del sitio en tu navegador.";
+        warn = true;
+    }else if(Notification.permission === "default" && hayRec){
+        html = `🔔 Para avisarte con notificaciones del sistema necesitamos tu permiso.<div class="acc"><button type="button" id="btnPermiso">Activar avisos</button></div>`;
+    }
+    box.innerHTML = html;
+    box.classList.toggle("warn", warn);
+    show("avisoNotif", !!html);
+    const b = $("btnPermiso"); if(b) b.onclick = pedirPermiso;
+}
+
+function mostrarAlerta(t){
+    if(alertasActivas.has(t.id)) return;
+    alertasActivas.add(t.id);
+    const d = document.createElement("div");
+    d.className = "alerta"; d.id = "al-" + t.id; d.setAttribute("role", "alertdialog"); d.setAttribute("aria-label", "Recordatorio: " + t.titulo);
+    d.innerHTML = `<strong>🔔 ${esc(t.titulo)}</strong><span class="mut">${esc(fmtFecha(t))}</span>
+        <div class="acciones"><button type="button" data-a="posponer">Posponer</button>
+        <button type="button" data-a="hecha">Marcar como realizada</button>
+        <button type="button" data-a="abrir" class="sec">Abrir tarea</button>
+        <button type="button" data-a="cerrar" class="sec" aria-label="Cerrar aviso">✕</button></div>`;
+    d.addEventListener("click", e => { const b = e.target.closest("button"); if(b) accion(b.dataset.a, t.id); });
+    $("alertas").appendChild(d);
+}
+function quitarAlerta(id){ alertasActivas.delete(id); const el = $("al-" + id); if(el) el.remove(); }
+
+async function notificarSistema(t){
+    if(!soporta || Notification.permission !== "granted") return;
+    try{
+        const reg = await navigator.serviceWorker.ready;
+        await reg.showNotification(t.titulo, {
+            body: fmtFecha(t) + (t.comentarios ? " · " + t.comentarios.slice(0, 80) : ""),
+            tag: "tarea-" + t.id, renotify: true, requireInteraction: true,
+            icon: "icons/icon-192.png", badge: "icons/icon-192.png", data: {id: t.id},
+            actions: [{action: "posponer", title: "Posponer"}, {action: "hecha", title: "Marcar como realizada"}, {action: "abrir", title: "Abrir tarea"}]
+        });
+    }catch(e){ console.warn("No se pudo mostrar la notificación", e); }
+}
+
+function revisar(){
+    if(!uid || !cargado) return;
+    const ahora = Date.now();
+    for(const t of tareas){
+        const e = efectivo(t);
+        if(e == null || t.notificadoPara === e || e > ahora || e < ahora - 86400000) continue;
+        t.notificadoPara = e;                       // evita repetir mientras se guarda
+        guardado(updateDoc(refTarea(t.id), {notificadoPara: e}));
+        mostrarAlerta(t);
+        if(document.visibilityState !== "visible" || !document.hasFocus()) notificarSistema(t);
+    }
+}
+
+/* Acciones de alertas y notificaciones */
+function accion(a, id){
+    if(a === "cerrar"){ quitarAlerta(id); return; }
+    const t = tareas.find(x => x.id === id);
+    if(!t){ toast("Esa tarea ya no existe."); quitarAlerta(id); return; }
+    if(a === "hecha"){ marcar(t, "realizada"); }
+    else if(a === "abrir"){ quitarAlerta(id); abrirForm(t); }
+    else if(a === "posponer"){ abrirPosponer(t); }
+}
+function accionExterna(a, id){
+    if(!cargado){ accionPendiente = {a, id}; return; }
+    accion(a, id);
+}
+if(soporta) navigator.serviceWorker.addEventListener("message", e => { if(e.data && e.data.tipo === "accion") accionExterna(e.data.accion, e.data.id); });
+
+/* Posponer */
+let posId = null;
+function abrirPosponer(t){
+    posId = t.id; $("ePos").textContent = ""; $("pNum").value = "";
+    $("posTxt").textContent = `«${t.titulo}»: ¿en cuánto tiempo quieres que te vuelva a avisar?`;
+    if(!$("dlgPosponer").open) $("dlgPosponer").showModal();
+}
+function posponer(min){
+    const t = tareas.find(x => x.id === posId);
+    $("dlgPosponer").close();
+    if(!t) return;
+    t.posponerHasta = Date.now() + min * 60000; t.notificadoPara = null;
+    guardado(updateDoc(refTarea(t.id), {posponerHasta: t.posponerHasta, notificadoPara: null}));
+    quitarAlerta(t.id); render();
+    toast("Te avisaremos de nuevo en " + textoDur(min) + ".");
+}
+$("dlgPosponer").querySelectorAll("[data-min]").forEach(b => b.addEventListener("click", () => posponer(Number(b.dataset.min))));
+$("formPosCustom").addEventListener("submit", e => {
+    e.preventDefault();
+    const n = Number($("pNum").value), u = Number($("pUni").value);
+    if(!Number.isInteger(n) || n < 1 || n * u > 525600){ $("ePos").textContent = "Escribe un número entero mayor que 0."; $("pNum").focus(); return; }
+    posponer(n * u);
+});
+$("btnCancelarPos").addEventListener("click", () => $("dlgPosponer").close());
+
+setInterval(revisar, 15000);
+setInterval(() => { if(uid) render(); }, 60000);
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible"){ revisar(); render(); } });
+
+/* ---------- Sesión ---------- */
+const ERRORES = {
+    "auth/invalid-credential": "Correo o contraseña incorrectos.",
+    "auth/invalid-email": "El correo no es válido.",
+    "auth/email-already-in-use": "Ese correo ya tiene cuenta. Usa «Entrar».",
+    "auth/weak-password": "La contraseña debe tener al menos 6 caracteres.",
+    "auth/missing-password": "Escribe la contraseña.",
+    "auth/too-many-requests": "Demasiados intentos. Espera un momento.",
+    "auth/network-request-failed": "Sin conexión. Revisa tu internet."
+};
+const authMsg = m => { $("authMsg").textContent = m || ""; };
+const fallo = e => authMsg("⚠ " + (ERRORES[e.code] || "No se pudo completar la acción (" + (e.code || e.message) + ")."));
+$("formAuth").addEventListener("submit", e => { e.preventDefault(); authMsg(""); signInWithEmailAndPassword(auth, $("email").value.trim(), $("pass").value).catch(fallo); });
+$("btnRegistro").addEventListener("click", () => { authMsg(""); createUserWithEmailAndPassword(auth, $("email").value.trim(), $("pass").value).catch(fallo); });
+$("btnReset").addEventListener("click", () => {
+    const c = $("email").value.trim();
+    if(!c){ authMsg("Escribe tu correo y pulsa de nuevo."); return; }
+    sendPasswordResetEmail(auth, c).then(() => authMsg("Si el correo existe, recibirás un mensaje para cambiar la contraseña.")).catch(fallo);
+});
+$("btnLogout").addEventListener("click", () => signOut(auth));
+
+onAuthStateChanged(auth, user => {
+    if(desuscribir){ desuscribir(); desuscribir = null; }
+    tareas = []; cargado = false; uid = null;
+    $("alertas").innerHTML = ""; alertasActivas.clear();
+    if(!user){
+        show("authCard", true); show("appBox", false); show("btnNueva", false); show("btnLogout", false);
+        $("userEmail").textContent = ""; $("pass").value = "";
+        return;
+    }
+    uid = user.uid;
+    show("authCard", false); show("appBox", true); show("btnNueva", true); show("btnLogout", true);
+    $("userEmail").textContent = "☁ " + user.email;
+    render();
+    desuscribir = onSnapshot(query(colTareas(), orderBy("ts")), snap => {
+        tareas = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        cargado = true;
+        render(); revisar();
+        if(accionPendiente){ const p = accionPendiente; accionPendiente = null; accion(p.a, p.id); }
+    }, err => { cargado = true; render(); toast("No se pudieron cargar las tareas (" + (err.code || err.message) + ")."); });
+});
+
+/* ---------- PWA ---------- */
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+let instalador = null;
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); instalador = e; show("btnInstall", true); });
+addEventListener("appinstalled", () => show("btnInstall", false));
+$("btnInstall").addEventListener("click", async () => {
+    if(!instalador) return;
+    instalador.prompt(); await instalador.userChoice;
+    instalador = null; show("btnInstall", false);
+});
+if(/iphone|ipad/i.test(navigator.userAgent) && !navigator.standalone) show("iosHint", true);
+
+/* Acción que llegó por la URL (notificación tocada con la app cerrada) */
+const qs = new URLSearchParams(location.search);
+if(qs.get("accion") && qs.get("tarea")){
+    accionPendiente = {a: qs.get("accion"), id: qs.get("tarea")};
+    history.replaceState(null, "", location.pathname);
+}
+</script>
+</body>
+</html>
